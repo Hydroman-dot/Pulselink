@@ -14,6 +14,7 @@ public class HeartbeatWizard : EditorWindow {
   public Texture mask;
   public Color color=new Color(2.5f,0.025f,0.04f,1);
   public bool expanded;
+  public bool showEmissionSources=true;
   public HeartbeatEffectSetup.Target options=new HeartbeatEffectSetup.Target();
   public bool Selected { get { return usages.Exists(u=>u.selected); } }
  }
@@ -257,15 +258,42 @@ public class HeartbeatWizard : EditorWindow {
    else if(row.effect==HeartbeatEffectSetup.Effect.NativeFlow){t.centerOutDuration=EditorGUILayout.Slider("Center-Out-Dauer",t.centerOutDuration,-1,1);t.centerOutThreshold=EditorGUILayout.Slider("Intensitätsschwelle",t.centerOutThreshold,0,1);}
   }
  }
+ void DrawEmissionSources(MaterialChoice row){
+  var sources=HeartbeatEffectBuilder.GetEmissionSources(row.material);
+  var recommendation=HeartbeatEffectBuilder.RecommendEmission(sources);
+  row.showEmissionSources=EditorGUILayout.Foldout(row.showEmissionSources,"Vorhandene Emission im Material ("+sources.Count+" Texturen)",true);
+  if(!row.showEmissionSources)return;
+  if(sources.Count==0){EditorGUILayout.HelpBox("Keine Emissionsmap oder Emissionsmaske zugewiesen. Bitte unten eine eigene Map auswählen. Eine reine Emissionsfarbe legt keine Leuchtflächen fest.",MessageType.Info);return;}
+  EditorGUILayout.HelpBox("Vorschlag: "+recommendation.label+" — "+recommendation.texture.name+". "+(recommendation.active?(recommendation.isMask?"Die Maske eines eingeschalteten Emissionskanals grenzt die Leuchtflächen ein.":"Diese Map gehört zu einem eingeschalteten Emissionskanal."):"Alle gefundenen Kanäle sind ausgeschaltet; bitte die Vorschau prüfen.")+" Die Empfehlung beruht auf den Materialeinstellungen, nicht auf einer Bildanalyse.",MessageType.Info);
+  foreach(var source in sources)using(new EditorGUILayout.VerticalScope(EditorStyles.helpBox)){
+   using(new EditorGUILayout.HorizontalScope()){
+    GUILayout.Label(source.texture,GUILayout.Width(56),GUILayout.Height(56));
+    using(new EditorGUILayout.VerticalScope()){
+     GUILayout.Label(source.label+(source==recommendation?" · empfohlen":"")+(source.active?" · eingeschaltet":" · ausgeschaltet"),EditorStyles.boldLabel);
+     using(new EditorGUI.DisabledScope(true))EditorGUILayout.ObjectField(source.texture,typeof(Texture),false);
+     using(new EditorGUI.DisabledScope(true))EditorGUILayout.ColorField(new GUIContent("Materialfarbe (HDR)"),source.color,true,true,true);
+     GUILayout.Label((IsLil(row.material)?"Emissionsblend: ":"Emissionsstärke: ")+source.strength.ToString("0.###"),EditorStyles.miniLabel);
+    }
+   }
+   bool selected=row.mask==source.texture&&row.options.emissionSourceProperty==source.property;
+   using(new EditorGUI.DisabledScope(selected))if(GUILayout.Button(selected?"Ausgewählt":"Diese Textur verwenden")){
+    row.mask=source.texture;row.options.emissionSourceProperty=source.property;
+   }
+  }
+  GUILayout.Label("Übernommen wird die gewählte Textur als Begrenzung des Pulseffekts. Farbe und Stärke oben dienen zur Orientierung; deine Pulsfarbe bleibt erhalten. Mehrere Maps werden nicht zusammengeführt.",EditorStyles.wordWrappedMiniLabel);
+ }
  void DrawEffects(){
   GUILayout.Space(10);GUILayout.Label("Welchen Effekt pro Material?",EditorStyles.boldLabel);
   foreach(var row in materials)if(row.Selected){
    using(new EditorGUILayout.VerticalScope(EditorStyles.helpBox)){
     GUILayout.Label(row.material.name,EditorStyles.boldLabel);
+    DrawEmissionSources(row);
     var effects=EffectsFor(row.material);int current=Array.IndexOf(effects,row.effect);if(current<0)current=Array.IndexOf(effects,HeartbeatEffectSetup.Effect.PoiStrengthAdd);int picked=EditorGUILayout.Popup("Effekt",Mathf.Max(0,current),effects.Select(e=>EffectName(row.material,e)).ToArray());if(picked!=current)row.effect=effects[picked];
     DrawEffectOptions(row);
 
+    EditorGUI.BeginChangeCheck();
     row.mask=(Texture)EditorGUILayout.ObjectField("Emissionsmap / Maske",row.mask,typeof(Texture),false);
+    if(EditorGUI.EndChangeCheck())row.options.emissionSourceProperty=null;
     if(row.mask==null)GUILayout.Label("Automatisch: vorhandene Emissionsmap verwenden.",EditorStyles.miniLabel);
     row.color=EditorGUILayout.ColorField(new GUIContent("Pulsfarbe (HDR)"),row.color,true,true,true);
     GUILayout.Label(row.usages.Count(u=>u.selected)+" ausgewählte Material-Slots",EditorStyles.miniLabel);

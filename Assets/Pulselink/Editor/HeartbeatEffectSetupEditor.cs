@@ -91,6 +91,41 @@ public static class HeartbeatEffectBuilder {
   var material=new Material(source){name=name};AssetDatabase.CreateAsset(material,AssetDatabase.GenerateUniqueAssetPath(folder+"/"+Safe(name)+".mat"));return material;
  }
  static string PoiProperty(string prefix,int channel){return prefix+(channel==0?"":channel.ToString());}
+ public class EmissionSource {
+  public string property,label,uvProperty;
+  public Texture texture;
+  public Color color;
+  public float strength;
+  public bool active,isMask;
+  public int channel;
+ }
+ public static List<EmissionSource> GetEmissionSources(Material source){
+  var result=new List<EmissionSource>();if(source==null||source.shader==null)return result;
+  bool lil=source.shader.name.IndexOf("lilToon",StringComparison.OrdinalIgnoreCase)>=0;
+  if(!lil&&source.shader.name.IndexOf("poiyomi",StringComparison.OrdinalIgnoreCase)<0)return result;
+  // Visit lilToon's second channel first: this is the channel Pulselink already uses.
+  foreach(int channel in lil?new[]{1,0}:new[]{0,1,2,3}){
+   string suffix=channel==0?"":channel.ToString();
+   string prefix=lil?(channel==1?"_Emission2nd":"_Emission"):"_Emission";
+   string enabled=lil?(channel==1?"_UseEmission2nd":"_UseEmission"):"_EnableEmission"+suffix;
+   string color=lil?prefix+"Color":"_EmissionColor"+suffix;
+   string strength=lil?prefix+"Blend":"_EmissionStrength"+suffix;
+   foreach(bool mask in new[]{true,false}){
+    string property=lil?prefix+(mask?"BlendMask":"Map"):(mask?"_EmissionMask":"_EmissionMap")+suffix;
+    if(!source.HasProperty(property)||source.GetTexture(property)==null)continue;
+    result.Add(new EmissionSource{property=property,texture=source.GetTexture(property),channel=channel,isMask=mask,
+     label="Emission "+(channel+1)+" · "+(mask?"Maske":"Map"),
+     uvProperty=lil?prefix+"Map_UVMode":property+"UV",
+     active=source.HasProperty(enabled)&&source.GetFloat(enabled)>0,
+     color=source.HasProperty(color)?source.GetColor(color):Color.white,
+     strength=source.HasProperty(strength)?source.GetFloat(strength):1});
+   }
+  }
+  return result;
+ }
+ public static EmissionSource RecommendEmission(List<EmissionSource> sources){
+  return sources.Find(s=>s.active&&s.isMask)??sources.Find(s=>s.active)??(sources.Count>0?sources[0]:null);
+ }
  static string FindMask(Material source,bool lil){
   if(lil&&source.GetFloat("_UseEmission2nd")>0)foreach(var p in new[]{"_Emission2ndBlendMask","_Emission2ndMap"})if(source.GetTexture(p)!=null)return p;
   foreach(var p in lil?new[]{"_EmissionBlendMask","_EmissionMap"}:new[]{"_EmissionMap","_EmissionMask"})if(source.HasProperty(p)&&source.GetTexture(p)!=null)return p;
@@ -130,6 +165,11 @@ public static class HeartbeatEffectBuilder {
     
    }
    plan.maskProperty=FindMask(source,lil);plan.mask=target.emissionMask!=null?target.emissionMask:plan.maskProperty==null?null:source.GetTexture(plan.maskProperty);
+   if(!string.IsNullOrEmpty(target.emissionSourceProperty)&&target.emissionMask!=null){
+    var selected=GetEmissionSources(source).Find(s=>s.property==target.emissionSourceProperty&&s.texture==target.emissionMask);
+    Require(selected!=null,"Die gewählte Emissionsquelle hat sich geändert: "+source.name+". Bitte im Wizard erneut auswählen.");
+    plan.maskProperty=selected.property;
+   }
    Require(plan.mask!=null,"Keine Emissionsmap gefunden: Bitte für "+target.renderer.name+" eine Maske auswählen.");
    plans.Add(plan);
   }
@@ -179,6 +219,10 @@ public static class HeartbeatEffectBuilder {
     if(p.target.emissionMask!=null||p.source.GetFloat("_UseEmission2nd")==0){
      m.SetTexture("_Emission2ndMap",null);m.SetTexture("_Emission2ndBlendMask",p.mask);
      if(p.maskProperty!=null){m.SetTextureScale("_Emission2ndBlendMask",p.source.GetTextureScale(p.maskProperty));m.SetTextureOffset("_Emission2ndBlendMask",p.source.GetTextureOffset(p.maskProperty));}
+     if(!string.IsNullOrEmpty(p.target.emissionSourceProperty)){
+      var selected=GetEmissionSources(p.source).Find(s=>s.property==p.target.emissionSourceProperty);
+      if(selected!=null&&p.source.HasProperty(selected.uvProperty))m.SetFloat("_Emission2ndMap_UVMode",p.source.GetFloat(selected.uvProperty));
+     }
     }
     m.SetFloat("_UseAudioLink",1);m.SetFloat("_AudioLinkAsLocal",1);m.SetFloat("_AudioLinkUVMode",LilMode(p.target.effect));m.SetVector("_AudioLinkUVParams",new Vector4(p.target.spatialScale,p.target.spatialOffset,p.target.uvAngle*Mathf.Deg2Rad,(p.target.audioBand+0.5f)/4f));
     if(p.target.effect==HeartbeatEffectSetup.Effect.SoftBlink)m.SetVector("_AudioLinkUVParams",new Vector4(0,0,0,(p.target.audioBand+0.5f)/4f));
@@ -203,6 +247,17 @@ public static class HeartbeatEffectBuilder {
     m.SetTexture("_EmissionMask"+cs,p.mask);m.SetFloat("_EmissionMask"+cs+"Channel",0);m.SetFloat("_EmissionMaskInvert"+cs,0);m.SetFloat("_EmissionMask"+cs+"GlobalMask",0);
     if(p.maskProperty!=null){m.SetTextureScale("_EmissionMask"+cs,p.source.GetTextureScale(p.maskProperty));m.SetTextureOffset("_EmissionMask"+cs,p.source.GetTextureOffset(p.maskProperty));}
     m.SetFloat("_EmissionMask"+cs+"UV",p.source.GetFloat("_EmissionMapUV"));
+    if(!string.IsNullOrEmpty(p.target.emissionSourceProperty)){
+     var selected=GetEmissionSources(p.source).Find(s=>s.property==p.target.emissionSourceProperty);
+     if(selected!=null){
+      if(p.source.HasProperty(selected.uvProperty))m.SetFloat("_EmissionMask"+cs+"UV",p.source.GetFloat(selected.uvProperty));
+      if(selected.isMask){
+       string sourceChannel=selected.property+"Channel",sourceInvert="_EmissionMaskInvert"+(selected.channel==0?"":selected.channel.ToString());
+       if(p.source.HasProperty(sourceChannel))m.SetFloat("_EmissionMask"+cs+"Channel",p.source.GetFloat(sourceChannel));
+       if(p.source.HasProperty(sourceInvert))m.SetFloat("_EmissionMaskInvert"+cs,p.source.GetFloat(sourceInvert));
+      }
+     }
+    }
     m.SetColor("_EmissionColor"+cs,p.target.pulseColor);m.SetFloat("_EmissionColor"+cs+"ThemeIndex",0);m.SetFloat("_EmissionBaseColorAsMap"+cs,0);
     m.SetFloat("_EmissionCenterOutEnabled"+cs,IsCenter(p)?1:0);m.SetFloat(speed,0);m.SetFloat(strength,0);
     m.SetTexture("_EmissionMap"+cs,IsCenter(p)?pulseTex:Texture2D.whiteTexture);m.SetTextureScale("_EmissionMap"+cs,Vector2.one);m.SetTextureOffset("_EmissionMap"+cs,Vector2.zero);

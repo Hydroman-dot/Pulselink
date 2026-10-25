@@ -117,3 +117,12 @@ Zurücksetzen stellt die vor der Einrichtung gespeicherten Materialzuweisungen w
 - Material nicht auswählbar: Shader-Unterstützung und Poiyomi-Sperre prüfen.
 - Unterschiedliche Effekte am selben Renderer: animierte Eigenschaften können mehrere Slots betreffen. Der Wizard meldet erkannte Konflikte; Poiyomi-Slots benötigen passende gemeinsame Einstellungen und einen freien Emissionskanal.
 - Pulsoid: gemeinsamer VRCOSC-Eingang vorbereitet, noch kein Test mit Pulsoid-Sensor.
+
+
+## Vorhandene Emission auswählen
+
+In Schritt 3 zeigt jedes Material unter Vorhandene Emission im Material seine zugewiesenen Emissionsmaps und Masken als Vorschau. Kanal, eingeschalteter Zustand, Materialfarbe und Emissionsstärke beziehungsweise Emissionsblend helfen bei der Auswahl. Poiyomi-Kanäle 1 bis 4 und beide lilToon-Kanäle werden berücksichtigt.
+
+Empfohlen wird bevorzugt eine Maske aus einem eingeschalteten Emissionskanal, anschließend eine aktive Map. Sind alle Kanäle ausgeschaltet, ist der Vorschlag entsprechend gekennzeichnet. Die Empfehlung nutzt Materialeinstellungen und wertet nicht den Bildinhalt aus.
+
+Mit Diese Textur verwenden wird die Textur als Begrenzung des Pulseffekts gewählt. Pulsfarbe und Effektwerte bleiben erhalten. Maps werden nicht miteinander kombiniert. Eine eigene Textur kann weiterhin im Feld Emissionsmap / Maske zugewiesen werden. Bestehende Einrichtungswerte werden beim Öffnen nicht überschrieben. Erst Effekte einrichten wendet die Auswahl an.

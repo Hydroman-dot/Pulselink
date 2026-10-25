@@ -13,6 +13,7 @@ public class HeartbeatEffectSetup : MonoBehaviour, VRC.SDKBase.IEditorOnly {
   public Material sourceMaterial;
   [HideInInspector] public Material restoreMaterial;
   public Texture emissionMask;
+  [HideInInspector] public string emissionSourceProperty;
   [ColorUsage(true,true)] public Color pulseColor=new Color(2.5f,0.025f,0.04f,1);
   [ColorUsage(true,true)] public Color restingColor=new Color(0.02f,0,0,1);
   public int flowAxis;

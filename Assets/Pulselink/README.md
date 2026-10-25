@@ -97,3 +97,7 @@ Vorhandene Maps bleiben ohne ausdrücklich zugewiesenen Ersatz erhalten. Die Ein
 ## Poiyomi-Build-Fix (2026-10-25)
 Neu erzeugte Poiyomi-Materialien erhalten kurze Namen, damit beim Shader-Locking weniger lange Windows-Dateipfade entstehen. Der gemeldete LockMaterialsOnUpload-Fehler wurde damit behoben; der betroffene Avatar-Build wurde vom Tester bestätigt.
 Update: Paket über die bestehende Installation importieren. Bereits eingerichtete Avatare im Wizard öffnen und erneut einrichten, damit kurze Materialnamen erzeugt werden. Vorhandene generierte Materialien werden durch den Import allein nicht umbenannt. Nachträgliche manuelle Änderungen an generierten Materialkopien vorher sichern. Extrem lange Projektpfade können weiterhin problematisch sein.
+
+
+## Emissionsauswahl mit Vorschau (2026-10-25)
+Schritt 3 zeigt vorhandene Emissionsmaps und Masken samt Kanal, Aktivierung, Farbe und Stärke. Eine Maske aus einem eingeschalteten Kanal wird bevorzugt empfohlen. Mit Diese Textur verwenden wird die Textur ausgewählt; die Pulsfarbe bleibt erhalten. Die Empfehlung wertet Materialeinstellungen aus, nicht den Bildinhalt. Mehrere Maps werden nicht kombiniert. Vorhandene Einstellungen werden beim Öffnen nicht überschrieben.

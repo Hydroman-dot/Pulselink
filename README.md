@@ -6,7 +6,7 @@ Herzpuls- und AudioLink-Effekte für VRChat-Avatare mit **lilToon oder Poiyomi T
 
 ## Download und Einstieg
 
-1. [Pulselink-Testpaket herunterladen](Downloads/Pulselink_2026-10-25_PoiyomiFix.unitypackage) (auf GitHub bei Bedarf „Download raw file“ wählen).
+1. [Pulselink-Testpaket herunterladen](Downloads/Pulselink_2026-10-25_EmissionWizard.unitypackage) (auf GitHub bei Bedarf „Download raw file“ wählen).
 2. In ein Unity-Avatarprojekt mit VRChat Avatars SDK, Modular Avatar und passendem Shader importieren.
 3. **Tools → Pulselink → Einrichtungs-Wizard** öffnen.
 4. Avatar aus der Szene und Materialien wählen, Effekt einstellen und **Effekte einrichten** anklicken.
@@ -57,3 +57,9 @@ Bitte bei Fehlern Shader und Version, Effekt, Herzpuls-/AudioLink-Modus, kurze R
 Kurze Namen für erzeugte Poiyomi-Materialien beheben den gemeldeten Windows-Pfadfehler bei LockMaterialsOnUpload. Der betroffene Avatar-Build wurde erfolgreich erneut getestet.
 
 Update: Paket importieren und bestehende Einrichtung im Wizard erneut ausführen. Der Import allein benennt alte Materialkopien nicht um. Manuelle Änderungen an generierten Kopien vorher sichern. Extrem lange Projektpfade können weiterhin problematisch sein.
+
+## Emissionsauswahl mit Vorschau vom 25.10.2026
+
+Der Wizard zeigt zugewiesene Emissionsmaps und Masken mit Vorschau, Kanal, Aktivierung, Farbe und Stärke. Eine passende Textur wird anhand der Materialeinstellungen empfohlen und kann mit Diese Textur verwenden ausgewählt werden. Pulsfarbe und bestehende Einrichtungswerte bleiben beim Öffnen erhalten. Enthält auch den Poiyomi-Build-Fix.
+
+Update: Unitypackage über die vorhandene Installation importieren, Kompilierung abwarten und den Wizard neu öffnen. Auswahl und Übernahme wurden mit lilToon und Poiyomi geprüft.
