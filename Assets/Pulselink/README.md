@@ -92,3 +92,8 @@ Vorhandene Maps bleiben ohne ausdrücklich zugewiesenen Ersatz erhalten. Die Ein
 **Strength Multiply**: Die Grundstärke wird mit einem pulsierenden Multiplikator zwischen Min und Max verrechnet. Im Welt-AudioLink-Modus liefert das gewählte Audioband den Multiplikator. Bei Grundstärke null bleibt der Effekt dunkel; ohne AudioLink-Quelle bleibt im Welt-Modus die Grundstärke sichtbar.
 
 **Strength Add**: Ein pulsierender Wert zwischen Min und Max wird zur Grundstärke addiert. Im Welt-AudioLink-Modus liefert das gewählte Audioband diesen Zusatz. Grundstärke null ermöglicht eine Dunkelpause; eine höhere Grundstärke sorgt für dauerhaftes Grundleuchten.
+
+
+## Poiyomi-Build-Fix (2026-10-25)
+Neu erzeugte Poiyomi-Materialien erhalten kurze Namen, damit beim Shader-Locking weniger lange Windows-Dateipfade entstehen. Der gemeldete LockMaterialsOnUpload-Fehler wurde damit behoben; der betroffene Avatar-Build wurde vom Tester bestätigt.
+Update: Paket über die bestehende Installation importieren. Bereits eingerichtete Avatare im Wizard öffnen und erneut einrichten, damit kurze Materialnamen erzeugt werden. Vorhandene generierte Materialien werden durch den Import allein nicht umbenannt. Nachträgliche manuelle Änderungen an generierten Materialkopien vorher sichern. Extrem lange Projektpfade können weiterhin problematisch sein.

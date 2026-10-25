@@ -86,6 +86,8 @@ public static class HeartbeatEffectBuilder {
  }
  static AnimationClip Clip(string folder,string name){var c=new AnimationClip{name=name,frameRate=60};AssetDatabase.CreateAsset(c,folder+"/"+name+".anim");return c;}
  static Material Copy(Material source,string folder,string name) {
+  // Poiyomi uses material names in generated shader paths; keep them short on Windows.
+  if(source.shader!=null&&source.shader.name.IndexOf("poiyomi",StringComparison.OrdinalIgnoreCase)>=0)name="PL_"+Guid.NewGuid().ToString("N").Substring(0,8)+(name.EndsWith("_WorldAudioLink",StringComparison.Ordinal)?"_AL":"_HR");
   var material=new Material(source){name=name};AssetDatabase.CreateAsset(material,AssetDatabase.GenerateUniqueAssetPath(folder+"/"+Safe(name)+".mat"));return material;
  }
  static string PoiProperty(string prefix,int channel){return prefix+(channel==0?"":channel.ToString());}
