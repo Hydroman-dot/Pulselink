@@ -63,3 +63,9 @@ Update: Paket importieren und bestehende Einrichtung im Wizard erneut ausführen
 Der Wizard zeigt zugewiesene Emissionsmaps und Masken mit Vorschau, Kanal, Aktivierung, Farbe und Stärke. Eine passende Textur wird anhand der Materialeinstellungen empfohlen und kann mit Diese Textur verwenden ausgewählt werden. Pulsfarbe und bestehende Einrichtungswerte bleiben beim Öffnen erhalten. Enthält auch den Poiyomi-Build-Fix.
 
 Update: Unitypackage über die vorhandene Installation importieren, Kompilierung abwarten und den Wizard neu öffnen. Auswahl und Übernahme wurden mit lilToon und Poiyomi geprüft.
+
+## KI-Hinweis / AI disclosure
+
+Dieses Projekt wird mit Unterstützung künstlicher Intelligenz entwickelt und dokumentiert. Der Hinweis beschreibt die Entwicklung und bedeutet nicht, dass das Programm selbst KI-Funktionen verwendet.
+
+This project is developed and documented with assistance from artificial intelligence. This disclosure describes the development process; it does not imply that the software itself uses AI features.
